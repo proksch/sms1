@@ -74,7 +74,7 @@ def main():
 	messages = pd.read_csv('output/processed_msgs.csv')
 
 	# append our message length feature to the tfidf vector to produce the final feature vector we fit into our classifiers
-	len_feature = messages['length'].as_matrix()
+	len_feature = messages['length'].to_numpy()
 	feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
 
 	learning_curve(feat_vect, messages, folds = 5)

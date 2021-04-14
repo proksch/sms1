@@ -28,7 +28,7 @@ from sklearn.metrics import classification_report
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_colwidth', None)
 
 def Tfidf_Vectorization(messages):
     '''
@@ -67,7 +67,7 @@ def main():
     tfidf_vect = Tfidf_Vectorization(messages)
 
     # append our message length feature to the tfidf vector to produce the final feature vector we fit into our classifiers
-    len_feature = messages['length'].as_matrix()
+    len_feature = messages['length'].to_numpy()
     feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
 
     X_train, X_test, y_train, y_test = TrainTestSplit(feat_vect, messages)
@@ -84,13 +84,13 @@ def main():
                    'AdaBoost': ada_boost, 'Bagging Classifier': bagging_clf}
     
     X_train2, X_test2 = train_test_split(messages['message'], test_size = 0.3, random_state = 101)
-    pred_scores = []
+    pred_scores = dict()
     pred = dict()
     file = open('output/misclassified_msgs.txt', 'a', encoding='utf-8') # misclassified messages will be written in this
     for k, v in classifiers.items():
         train_classifier(v, X_train, y_train)
         pred[k] = predict_labels(v, X_test)
-        pred_scores.append((k, [accuracy_score(y_test, pred[k])]))
+        pred_scores[k] = [accuracy_score(y_test, pred[k])]
         print('\n############### ' + k + ' ###############\n')
         print(classification_report(y_test, pred[k]))
 
@@ -107,7 +107,7 @@ def main():
     file.close()
 
     print('\n############### Accuracy Scores ###############')
-    accuracy = pd.DataFrame.from_items(pred_scores, orient = 'index', columns = ['Accuracy Rate'])
+    accuracy = pd.DataFrame.from_dict(pred_scores, orient = 'index', columns = ['Accuracy Rate'])
     print('\n')
     print(accuracy)
     print('\n')

@@ -58,7 +58,7 @@ def main():
     tfidf_vect = Tfidf_Vectorization(sms_data) # create a large sparse tfidf feature vector
 
     # append our message length feature to the tfidf vector to produce the final feature vector we fit into our classifiers
-    len_feature = sms_data['length'].as_matrix()
+    len_feature = sms_data['length'].to_numpy()
     feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
     
     X_train = feat_vect[:5572] # training set is comprised of entire UCI message dataset

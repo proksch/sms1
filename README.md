@@ -12,12 +12,9 @@ $ cd SMS-Spam-Detection
 b) Install all dependencies.
 
 ```
-$ pip install numpy
-$ pip install pandas
-$ pip install nltk
-$ pip install scipy
-$ pip install matplotlib
-$ pip install scikit-learn
+$ python -m venv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
 ```
 
 c) Run various scripts
