@@ -54,7 +54,7 @@ def main():
     tfidf_vect = Tfidf_Vectorization(balanced_data)
 
     # append our message length feature to the tfidf vector to produce the final feature vector we fit into our classifiers
-    len_feature = balanced_data['length'].as_matrix()
+    len_feature = balanced_data['length'].to_numpy()
     feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
     
     X_train, X_test, y_train, y_test = train_test_split(feat_vect, balanced_data['label'], test_size=0.3, random_state=101)
