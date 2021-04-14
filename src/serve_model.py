@@ -15,16 +15,30 @@ def predict():
     """
     Predict whether an SMS is Spam.
     ---
+    consumes:
+      - application/json
     parameters:
-        - name: sms
+        - name: input_data
+          in: body
           description: message to be classified.
-          required: False
-          type: string
+          required: True
+          default: "{'sms':'this is my request'}"
+          schema:
+            type: object
+            properties:
+                sms:
+                    type: string
     responses:
       200:
         description: "The result of the classification: Spam or Ham."
     """
-    return jsonify({"result": "Spam", "classifier": "decision tree"})
+    input_data = request.get_json()
+    sms = input_data.get('sms')
+    return jsonify({
+        "result": "Spam",
+        "classifier": "decision tree",
+        "sms": sms
+    })
     # try:
     #     json_ = request.json
     #     query_df = pd.DataFrame(json_)
@@ -39,4 +53,4 @@ def predict():
 
 if __name__ == '__main__':
     clf = joblib.load('output/model.joblib')
-    app.run(port=8080)
+    app.run(port=8080, debug=True)
