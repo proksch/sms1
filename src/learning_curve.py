@@ -21,64 +21,66 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 def learning_curve(feature_vect, messages, folds):
-	training_set_size = []
-	train_error = []
-	cv_error = []
+  training_set_size = []
+  train_error = []
+  cv_error = []
 
-	print("")
-	print("This may take some time, please wait..", sep=' ', end='', flush=True)
-	for training_size in range(10, len(messages), 75):
-		print(".", sep=' ', end='', flush=True)
-		X = feature_vect[:training_size]
-		y = messages['label'][:training_size]
-		kf = KFold(n_splits=folds, random_state=None, shuffle=False)
-		err1 = []
-		err2 = []
+  print("")
+  print("This may take some time, please wait..", sep=' ', end='', flush=True)
+  for training_size in range(10, len(messages), 75):
+    print(".", sep=' ', end='', flush=True)
+    X = feature_vect[:training_size]
+    y = messages['label'][:training_size]
+    kf = KFold(n_splits=folds, random_state=None, shuffle=False)
+    err1 = []
+    err2 = []
 
-		# generate K folds and train classifier on every fold
-		for train_index, test_index in kf.split(X):
-			#print("TRAIN:", train_index, "TEST:", test_index)
-			X_train, X_test = X[train_index], X[test_index]
-			y_train, y_test = y[train_index], y[test_index]
+    # generate K folds and train classifier on every fold
+    for train_index, test_index in kf.split(X):
+      #print("TRAIN:", train_index, "TEST:", test_index)
+      X_train, X_test = X[train_index], X[test_index]
+      y_train, y_test = y[train_index], y[test_index]
 
-			mnb = MultinomialNB(alpha = 0.10000000000000001)
-			mnb.fit(X_train, y_train)
-			pred = mnb.predict(X_test)
+      mnb = MultinomialNB(alpha = 0.10000000000000001)
+      mnb.fit(X_train, y_train)
+      pred = mnb.predict(X_test)
 
-			err = 1.0 - (mnb.score(X_train,y_train))
-			err1.append(err) # training error
-			err = 1.0 - (mnb.score(X_test,y_test))
-			err2.append(err) # cv error
+      err = 1.0 - (mnb.score(X_train,y_train))
+      err1.append(err) # training error
+      err = 1.0 - (mnb.score(X_test,y_test))
+      err2.append(err) # cv error
 
-		train_error.append(np.average(err1)) # training error =  avg of training error from every fold
-		cv_error.append(np.average(err2))    # cross-validation error = avg of cv error from every fold
-		training_set_size.append(training_size)
+    train_error.append(np.average(err1)) # training error =  avg of training error from every fold
+    cv_error.append(np.average(err2))    # cross-validation error = avg of cv error from every fold
+    training_set_size.append(training_size)
 
-	# Plotting of learning curve using matplotlib
-	x = training_set_size
-	y = train_error
-	z = cv_error
+  # Plotting of learning curve using matplotlib
+  x = training_set_size
+  y = train_error
+  z = cv_error
 
-	fig = plt.figure(figsize=(10,5))
-	plt.plot(x,y, label='Training error')
-	plt.plot(x,z,'g-', label='Cross-Validation error')
-	plt.xlabel('Training Set Size')
-	plt.ylabel('Error Rate')
-	plt.title('Learning Curve')
-	plt.legend()
-	plt.show(block = True)
+  fig = plt.figure(figsize=(10,5))
+  plt.plot(x,y, label='Training error')
+  plt.plot(x,z,'g-', label='Cross-Validation error')
+  plt.xlabel('Training Set Size')
+  plt.ylabel('Error Rate')
+  plt.title('Learning Curve')
+  plt.legend()
+  plt.savefig("output/learning_curve.png")
+  print("Saved the learning curve graph in 'output/learning_curve.png'.")
+
 
 def main():
 
-	tfidf_vect = pickle.load(open("output/tfidf_vector.pickle", "rb")) # load previously generated tf-idf vector from pickle file
-	messages = pd.read_csv('output/processed_msgs.csv')
+  tfidf_vect = pickle.load(open("output/tfidf_vector.pickle", "rb")) # load previously generated tf-idf vector from pickle file
+  messages = pd.read_csv('output/processed_msgs.csv')
 
-	# append our message length feature to the tfidf vector to produce the final feature vector we fit into our classifiers
-	len_feature = messages['length'].to_numpy()
-	feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
+  # append our message length feature to the tfidf vector to produce the final feature vector we fit into our classifiers
+  len_feature = messages['length'].to_numpy()
+  feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
 
-	learning_curve(feat_vect, messages, folds = 5)
-	#learning_curve(feat_vect, messages, folds = 10)
+  learning_curve(feat_vect, messages, folds = 5)
+  #learning_curve(feat_vect, messages, folds = 10)
 
 if __name__ == "__main__":
     main()
