@@ -12,13 +12,13 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-# from sklearn.naive_bayes import MultinomialNB
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from joblib import dump
 import matplotlib
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import text_preprocessing
 
 matplotlib.use('TkAgg')
@@ -76,14 +76,13 @@ def main():
     classifiers = {
         'SVM': SVC(),
         'Decision Tree': DecisionTreeClassifier(),
-        # 'Multinomial NB': MultinomialNB(),
-        # 'KNN': KNeighborsClassifier(),
-        # 'Random Forest': RandomForestClassifier(),
-        # 'AdaBoost': AdaBoostClassifier(),
-        # 'Bagging Classifier': BaggingClassifier()
+        'Multinomial NB': MultinomialNB(),
+        'KNN': KNeighborsClassifier(),
+        'Random Forest': RandomForestClassifier(),
+        'AdaBoost': AdaBoostClassifier(),
+        'Bagging Classifier': BaggingClassifier()
     }
 
-    assert np.array_equal(test_messages, test_messages)
     pred_scores = dict()
     pred = dict()
     # save misclassified messages
@@ -113,13 +112,12 @@ def main():
     print(accuracy)
     print('\n')
 
-    # #plot accuracy scores in a bar plot
-    # accuracy.plot(kind =  'bar', ylim=(0.85,1.0), edgecolor='black', figsize=(10,5))
-    # plt.ylabel('Accuracy Score')
-    # plt.title('Distribution by Classifier')
-    # plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    # plt.show()
-    # sys.exit(0)
+    #plot accuracy scores in a bar plot
+    accuracy.plot(kind='bar', ylim=(0.85, 1.0), edgecolor='black', figsize=(10, 5))
+    plt.ylabel('Accuracy Score')
+    plt.title('Distribution by Classifier')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    plt.savefig("output/accuracy_scores.png")
 
     # Store "best" classifier
     dump(classifiers['Decision Tree'], 'output/model.joblib')
