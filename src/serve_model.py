@@ -50,7 +50,7 @@ def predict():
 @app.route('/dumbpredict', methods=['POST'])
 def dumb_predict():
     """
-    Dumb prediction of whether a given SMS is Spam or Ham (always predicts 'ham').
+    Predict whether a given SMS is Spam or Ham (dumb model: always predicts 'ham').
     ---
     consumes:
       - application/json
