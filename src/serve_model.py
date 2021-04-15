@@ -7,6 +7,8 @@ from flask import Flask, jsonify, request
 from flasgger import Swagger
 import pandas as pd
 
+from text_preprocessing import prepare, _extract_message_len, _text_process
+
 app = Flask(__name__)
 swagger = Swagger(app)
 
@@ -22,34 +24,60 @@ def predict():
           in: body
           description: message to be classified.
           required: True
-          default: "{'sms':'this is my request'}"
           schema:
             type: object
+            required: sms
             properties:
                 sms:
                     type: string
+                    example: This is an example of an SMS.
     responses:
       200:
-        description: "The result of the classification: Spam or Ham."
+        description: "The result of the classification: 'spam' or 'ham'."
     """
     input_data = request.get_json()
     sms = input_data.get('sms')
+    processed_sms = prepare(sms)
+    model = joblib.load('output/model.joblib')
+    prediction = model.predict(processed_sms)[0]
+    
+    return jsonify({
+        "result": prediction,
+        "classifier": "decision tree",
+        "sms": sms
+    })
+
+@app.route('/dumbpredict', methods=['POST'])
+def dumb_predict():
+    """
+    Dumb prediction of whether a given SMS is Spam or Ham (always predicts 'ham').
+    ---
+    consumes:
+      - application/json
+    parameters:
+        - name: input_data
+          in: body
+          description: message to be classified.
+          required: True
+          schema:
+            type: object
+            required: sms
+            properties:
+                sms:
+                    type: string
+                    example: This is an example of an SMS.
+    responses:
+      200:
+        description: "The result of the classification: 'spam' or 'ham'."
+    """
+    input_data = request.get_json()
+    sms = input_data.get('sms')
+    
     return jsonify({
         "result": "Spam",
         "classifier": "decision tree",
         "sms": sms
     })
-    # try:
-    #     json_ = request.json
-    #     query_df = pd.DataFrame(json_)
-    #     query = pd.get_dummies(query_df)
-    #     for col in model_columns:
-    #         if col not in query.columns:
-    #             query[col] = 0
-    #     prediction = clf.predict(query)
-    #     return jsonify({'prediction': list(prediction)})
-    # except Exception as e:
-    #     return jsonify({'error': str(e), 'trace': traceback.format_exc()})
 
 if __name__ == '__main__':
     clf = joblib.load('output/model.joblib')

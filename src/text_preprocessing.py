@@ -1,29 +1,30 @@
 """
-This script loads the sms spam data, organizes the data into a pandas dataframe, adds a new
-feature (length of message) to the data, applies some basic text pre-processing techniques
-like stopword removal and punctuation removal, and converts the messages into a list of processed
-tokens. Finally, the processed dataframe is copied into a new csv file processed_msgs.csv.
+Preprocess the data to be trained by the learning algorithm.
 """
 
-import string
 import pandas as pd
+import numpy as np
+
+import string
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 nltk.download('stopwords')
 
-def load_data():
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.pipeline import make_union, make_pipeline
+from joblib import dump, load
 
+def _load_data():
     messages = pd.read_csv(
         'smsspamcollection/SMSSpamCollection',
         sep='\t',
         names=['label', 'message']
     )
-    messages['length'] = messages['message'].apply(len)
-
     return messages
 
-def text_process(data):
+def _text_process(data):
     '''
     1. remove punc
     2. do stemming of words
@@ -46,20 +47,41 @@ def text_process(data):
 
     return clean_msgs
 
+def _extract_message_len(data):
+    # return as np.array and reshape so that it works with make_union
+    return np.array([len(message) for message in data]).reshape(-1, 1)
+
+def _preprocess(messages):
+    '''
+    1. Convert word tokens from processed msgs dataframe into a bag of words
+    2. Convert bag of words representation into tfidf vectorized representation for each message
+    3. Add message length
+    '''
+    preprocessor = make_union(
+        make_pipeline(
+            CountVectorizer(analyzer=_text_process),
+            TfidfTransformer()
+        ),
+        # append the message length feature to the vector
+        FunctionTransformer(_extract_message_len, validate=False)
+    )
+
+    preprocessed_data = preprocessor.fit_transform(messages['message'])
+    dump(preprocessor, 'output/preprocessor.joblib')
+    dump(preprocessed_data, 'output/preprocessed_data.joblib')
+    return preprocessed_data
+
+def prepare(message):
+    preprocessor = load('output/preprocessor.joblib')
+    return preprocessor.transform([message])
+
+
 def main():
-
-    messages = load_data()
-    #print(messages)
-    messages['processed_msg'] = messages['message'].apply(text_process)
-
-    print('\n################################################## Processed Messages ##################################################\n')
+    messages = _load_data()
+    print('\n################### Processed Messages ###################\n')
     with pd.option_context('expand_frame_repr', False):
         print(messages)
-    #print(messages)
-
-    messages.to_csv('output/processed_msgs.csv',
-                    encoding='utf-8',
-                    index=False) #copy processed messages dataframe to a new csv file
+    _preprocess(messages)
 
 if __name__ == "__main__":
     main()

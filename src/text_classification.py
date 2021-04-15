@@ -1,14 +1,8 @@
 """
-This script contains the main sms classification code. We first load the processed
-messages, convert each message into a bag of words and then into a tfidf vector
-representation. Then we split the tfidf feature vector into training and test sets,
-build our classifier on the training set, and test it on the test set.
+Train the model using different algorithms.
 """
 
-import pickle
-import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
@@ -16,33 +10,14 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from joblib import dump
+from joblib import dump, load
 import matplotlib
 import matplotlib.pyplot as plt
-import text_preprocessing
+from text_preprocessing import _load_data
 
 matplotlib.use('TkAgg')
 pd.set_option('display.max_colwidth', None)
 
-
-def tfidf_vectorization(messages):
-    '''
-    1. Convert word tokens from processed msgs dataframe into a bag of words
-    2. Convert bag of words representation into tfidf vectorized representation for each message
-    '''
-
-    bow_transformer = CountVectorizer(
-        analyzer=text_preprocessing.text_process
-    ).fit(messages['message'])
-    bow = bow_transformer.transform(messages['message']) # bag of words
-
-    tfidf_transformer = TfidfTransformer().fit(bow)
-    tfidf_vect = tfidf_transformer.transform(bow) # tfidf vector representation
-
-    # store tfidf vector in a pickle file so tha it can be be used later in other scripts
-    pickle.dump(tfidf_vect, open("output/tfidf_vector.pickle", "wb"))
-
-    return tfidf_vect
 
 def my_train_test_split(*datasets):
     '''
@@ -58,20 +33,14 @@ def predict_labels(classifier, X_test):
 
 def main():
 
-    messages = pd.read_csv('output/processed_msgs.csv')
-
-    tfidf_vect = tfidf_vectorization(messages)
-
-    # append our message length feature to the tfidf vector
-    # to produce the final feature vector we fit into our classifiers
-    len_feature = messages['length'].to_numpy()
-    feat_vect = np.hstack((tfidf_vect.todense(), len_feature[:, None]))
+    raw_data = _load_data()
+    preprocessed_data = load('output/preprocessed_data.joblib')
 
     (X_train, X_test,
      y_train, y_test,
-     _, test_messages) = my_train_test_split(feat_vect,
-                                             messages['label'],
-                                             messages['message'])
+     _, test_messages) = my_train_test_split(preprocessed_data,
+                                             raw_data['label'],
+                                             raw_data['message'])
 
     classifiers = {
         'SVM': SVC(),
