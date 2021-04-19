@@ -1,6 +1,7 @@
 # SMS Spam Detection Using Machine Learning
 
-This project is adapted from: https://github.com/rohan8594/SMS-Spam-Detection
+This project is used a starting point for the course [*Release Engineering for Machine Learning Applications* (REMLA)] taught at the Delft University of Technology by [Prof. Luís Cruz] and [Prof. Sebastian Proksch].
+The codebase was originally adapted from: https://github.com/rohan8594/SMS-Spam-Detection
 
 ## Instructions for Compiling
 
@@ -40,3 +41,7 @@ curl -X POST "http://127.0.0.1:8080/predict" -H  "accept: application/json" -d "
 ```
 
 Alternatively, you can access the UI using your browser: http://127.0.0.1:8080/apidocs
+
+[*Release Engineering for Machine Learning Applications* (REMLA)]: https://se.ewi.tudelft.nl/remla/ 
+[Prof. Luís Cruz]: https://luiscruz.github.io/
+[Prof. Sebastian Proksch]: https://proks.ch/
