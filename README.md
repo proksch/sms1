@@ -1,6 +1,7 @@
 # SMS Spam Detection Using Machine Learning
 
 This project is used a starting point for the course [*Release Engineering for Machine Learning Applications* (REMLA)] taught at the Delft University of Technology by [Prof. Luís Cruz] and [Prof. Sebastian Proksch].
+
 The codebase was originally adapted from: https://github.com/rohan8594/SMS-Spam-Detection
 
 ## Instructions for Compiling
