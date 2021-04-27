@@ -15,7 +15,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from text_preprocessing import _load_data
 
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 pd.set_option('display.max_colwidth', None)
 
 

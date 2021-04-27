@@ -1,7 +1,7 @@
 """
 Flask API of the SMS Spam detection model model.
 """
-import traceback
+#import traceback
 import joblib
 from flask import Flask, jsonify, request
 from flasgger import Swagger
@@ -41,11 +41,13 @@ def predict():
     model = joblib.load('output/model.joblib')
     prediction = model.predict(processed_sms)[0]
     
-    return jsonify({
+    res = {
         "result": prediction,
         "classifier": "decision tree",
         "sms": sms
-    })
+    }
+    print(res)
+    return jsonify(res)
 
 @app.route('/dumbpredict', methods=['POST'])
 def dumb_predict():
@@ -81,4 +83,4 @@ def dumb_predict():
 
 if __name__ == '__main__':
     clf = joblib.load('output/model.joblib')
-    app.run(port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
