@@ -1,0 +1,37 @@
+name: Deploy
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Parse version info from tag
+        run: |
+          # GITHUB_REF is like refs/tags/v2.3.5, so strip the first 11 chars
+          VERSION=${GITHUB_REF:11}
+          MAJOR=`echo "$VERSION" | cut -d . -f 1`
+          MINOR=`echo "$VERSION" | cut -d . -f 2`
+          PATCH=`echo "$VERSION" | cut -d . -f 3`
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "version_major=$MAJOR" >> $GITHUB_ENV
+          echo "version_minor=$MINOR" >> $GITHUB_ENV
+          echo "version_patch=$PATCH" >> $GITHUB_ENV
+
+      - name: Registry Login (ghcr.io)
+        run: echo "${{ secrets.GHTOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build, tag, and publish image
+        run: |
+          IMG=ghcr.io/${{ github.repository }}
+          docker build \
+            -t ${IMG}:latest \
+            -t ${IMG}:${{ env.version_major }}-latest \
+            -t ${IMG}:${{ env.version_major }}.${{ env.version_minor }}-latest \
+            -t ${IMG}:${{ env.version }} \
+            .
+          docker push --all-tags $IMG
