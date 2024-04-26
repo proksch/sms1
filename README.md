@@ -21,15 +21,22 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-c) Run various scripts
+c) create output directory
 
 ```
+mkdir output
+```
+
+d) Run various scripts
+
+```
+$ python src/get_data.py
 $ python src/read_data.py
 $ python src/text_preprocessing.py
 $ python src/text_classification.py
 ```
 
-d) Serve the model as a REST API
+e) Serve the model as a REST API
 
 ```
 $ python src/serve_model.py
