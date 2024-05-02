@@ -1,6 +1,9 @@
 # SMS Spam Detection Using Machine Learning
 
-This project is used a starting point for the course [*Release Engineering for Machine Learning Applications* (REMLA)] taught at the Delft University of Technology by [Prof. Luís Cruz] and [Prof. Sebastian Proksch].
+This project is used a runnning example in the course **Release Engineering for Machine Learning Applications** (REMLA) taught at the Delft University of Technology by [Prof. Luís Cruz] and [Prof. Sebastian Proksch].
+
+[Prof. Luís Cruz]: https://luiscruz.github.io/
+[Prof. Sebastian Proksch]: https://proks.ch/
 
 The codebase was originally adapted from: https://github.com/rohan8594/SMS-Spam-Detection
 
@@ -8,8 +11,7 @@ This project is a simply machine-learning project that illustrates how to detect
 The following guide will explain you how a model can be trained and served.
 Please note that we have adapted the original project, the instructions only work with our extension.
 
-The preoject requires a Python 3.7 environment to run.
-
+The project **requires a Python 3.7 environment** to run.
 
 
 ## Training
@@ -48,7 +50,7 @@ The resulting model files will be placed as `.joblib` files in the `output/` fol
 
 ## Serving Recommendations
 
-The trained model can be used by Python programs.
+The trained `.joblib` model files can be used by Python programs.
 However, we want to use it cross-language in a distributed application, as such, it is more convenient to wrap it in a micro service.
 
 You can find a Dockerfile in the project, which contains all required steps for training the model, embedding the model in the image, and for preparing an executable application.
