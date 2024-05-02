@@ -4,45 +4,54 @@ This project is used a starting point for the course [*Release Engineering for M
 
 The codebase was originally adapted from: https://github.com/rohan8594/SMS-Spam-Detection
 
-## Instructions for Compiling
+This project is a simply machine-learning project that illustrates how to detect spam messages.
+The following guide will explain you how a model can be trained and served.
+Please note that we have adapted the original project, the instructions only work with our extension.
 
-a) Clone repo.
+The preoject requires a Python 3.7 environment to run.
 
-```
-$ git clone https://github.com/rohan8594/SMS-Spam-Detection.git
-$ cd SMS-Spam-Detection
-```
 
-b) Install dependencies.
 
-```
-$ python -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
-```
+## Training
 
-c) Run various scripts
+In contrast to the original project, we provide a `requirements.txt` file that can be used to restore the required dependencies in your environment.
 
-```
-$ python src/read_data.py
-$ python src/text_preprocessing.py
-$ python src/text_classification.py
-```
+To train the model, you have two options.
+Either you create a local environment...
 
-d) Serve the model as a REST API
+    $ python -m venv venv
+    $ source venv/bin/activate
+    $ pip install -r requirements.txt
 
-```
-$ python src/serve_model.py
-```
+... or you can prepare a Docker container for the training:
 
-You can test the API using the following:
+    $ docker run -it --rm -v /path/to/project/:/root/sms/ python:3.7-slim bash
+    ... (container gets started)
+    $ cd /root/sms/
+    $ pip install -r requirements.txt
 
-```
-curl -X POST "http://127.0.0.1:8080/predict" -H  "accept: application/json" -d "{sms: hello world!}"
-```
+Once all dependencies have been installed, the data can be preprocessed and the model trained by creating the output folder and invoking three commands:
 
-Alternatively, you can access the UI using your browser: http://127.0.0.1:8080/apidocs
+    $ mkdir output
+    $ python src/read_data.py
+    Total number of messages:5574
+    ...
+    $ python src/text_preprocessing.py
+    [nltk_data] Downloading package stopwords to /root/nltk_data...
+    [nltk_data]   Unzipping corpora/stopwords.zip.
+    ...
+    $ python src/text_classification.py
 
-[*Release Engineering for Machine Learning Applications* (REMLA)]: https://se.ewi.tudelft.nl/remla/ 
-[Prof. Luís Cruz]: https://luiscruz.github.io/
-[Prof. Sebastian Proksch]: https://proks.ch/
+The resulting model files will be placed as `.joblib` files in the `output/` folder.
+
+
+
+## Serving Recommendations
+
+The trained model can be used by Python programs.
+However, we want to use it cross-language in a distributed application, as such, it is more convenient to wrap it in a micro service.
+
+You can find a Dockerfile in the project, which contains all required steps for training the model, embedding the model in the image, and for preparing an executable application.
+You can build the image with the command `docker build -t smsapp .` and then run it by executing `docker run -it --rm -p8080:8080 smsapp`.
+
+Once the application is started, you can either access `localhost:8080/apidocs` with your browser or send `POST` requests to `localhost:8080/predict` to request predictions.
